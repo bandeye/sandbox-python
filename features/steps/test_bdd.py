@@ -1,12 +1,18 @@
 from pytest_bdd import parsers, given, scenarios, when, then
-from playwright.sync_api import *
+from playwright.sync_api import Browser, BrowserContext, Page, Playwright
 import pytest
 
 
 @pytest.fixture(scope="session")
 def request_context(playwright: Playwright):
     request_context = playwright.request.new_context()
-    yield request_context
+    browser : Browser = playwright.chromium.launch(headless=True)
+    context : BrowserContext = browser.new_context()
+    page : Page = context.new_page()
+    page.goto('https://www.google.com', wait_until='networkidle')
+
+    print(page.url)
+    #yield request_context
     request_context.dispose()
 
 scenarios("../features/api.feature")
